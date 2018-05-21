@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const passport = require('passport');
 
 // define variables that will direct routes to proper directory
 const posts = require('./routes/api/posts');
@@ -25,9 +26,19 @@ mongoose
     .then(() => console.log('MongoDB Connected')) // if successful
     .catch(err => console.log(err)); // if error
 
-app.get('/', (req, res) => res.send('Hi there world!'));
+// Make sure to require('passport')
+// Passport middleware
+// https://www.npmjs.com/package/passport
+app.use(passport.initialize());
+
+// Passport Config (JWT Strategy) === you can also use passport google oauth and other options
+// because 'done' or 'next' wasn't used, it should automatically go down the file
+// then carry out this function, which is called when we require what is being exported from
+// the config/passport.js file, then we are passing the passport object to that function.
+require('./config/passport')(passport);
 
 // Setting up middleware for Routes
+// will I bet setting up '/ to catch React route?
 app.use('/api/posts', posts);
 app.use('/api/profile', profile);
 app.use('/api/users', users);

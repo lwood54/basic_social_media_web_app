@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const gravatar = require('gravatar');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken'); // https://www.npmjs.com/package/jsonwebtoken
 const keys = require('../../config/keys');
+const passport = require('passport'); // https://www.npmjs.com/package/passport
 
 // Load User model
 const User = require('../../models/User');
@@ -91,6 +92,7 @@ router.post('/login', (req, res) => {
                         }, (err, token) => {
                             res.json({
                                 success: true,
+                                // the token will have to have 'Bearer in front of it because we will use it in a header
                                 token: `Bearer ${token}`
                             })
                         });
@@ -103,5 +105,18 @@ router.post('/login', (req, res) => {
         });
 });
 
+// @route   GET api/users/current
+// @desc    Return current user data
+// @access  Private
+// We are setting up a private route that will only display info sent when authentication has occurred
+router.get('/current', passport.authenticate('jwt', {
+    session: false
+}), (req, res) => {
+    res.json({
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email
+    });
+});
 
 module.exports = router;
